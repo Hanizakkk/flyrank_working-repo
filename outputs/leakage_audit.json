@@ -1,9 +1,0 @@
-{
-  "checklist": {
-    "features_only_from_decision_month": true,
-    "grouped_split_used_for_reported_results": true,
-    "ids_excluded_from_features": true,
-    "no_label_or_sibling_columns_in_features": true
-  },
-  "leaky_precision_at_50": 1.0
-}
