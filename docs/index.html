@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refresh Priority Scoring — A Decision-Support Model for Content Review</title>
+<style>
+  :root{
+    --ink:#1b2429; --sub:#4d5a61; --line:#e3e7e9; --paper:#fdfcfa;
+    --accent:#6f4e7c; --accent-ink:#3f2c48; --good:#2f6b4f; --warn:#8a5a1f;
+    --code:#f4f1ee;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.65; font-size:18px;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 24px}
+  header.hero{
+    padding:72px 0 40px; border-bottom:1px solid var(--line); margin-bottom:48px;
+  }
+  .kicker{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    text-transform:uppercase; letter-spacing:.12em; font-size:12.5px; font-weight:600;
+    color:var(--accent-ink); margin-bottom:18px;
+  }
+  h1{font-size:2.15rem; line-height:1.22; margin:0 0 18px; font-weight:600; letter-spacing:-.01em}
+  .sub{color:var(--sub); font-size:1.08rem; margin:0 0 28px; max-width:60ch}
+  .meta{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:14px; color:var(--sub); display:flex; gap:18px; flex-wrap:wrap;
+  }
+  .meta span{white-space:nowrap}
+  section{margin:52px 0}
+  h2{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.1em; font-weight:700;
+    color:var(--accent-ink); border-bottom:2px solid var(--accent); display:inline-block;
+    padding-bottom:6px; margin:0 0 22px;
+  }
+  h3{font-size:1.15rem; margin:28px 0 10px; font-weight:600}
+  p{margin:0 0 16px}
+  .lede{
+    font-size:1.05rem; background:var(--code); border-left:3px solid var(--accent);
+    padding:20px 24px; border-radius:2px;
+  }
+  ul,ol{padding-left:1.3em; margin:0 0 16px}
+  li{margin-bottom:6px}
+  code, .mono{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.86em;
+    background:var(--code); padding:.1em .38em; border-radius:4px; color:var(--accent-ink);
+  }
+  table{width:100%; border-collapse:collapse; margin:20px 0; font-size:.94rem}
+  th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line)}
+  th{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--sub);
+    font-weight:600; border-bottom:2px solid var(--ink);
+  }
+  tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; text-align:right}
+  .highlight{color:var(--accent-ink); font-weight:700}
+  .figure{margin:28px 0}
+  .figure img{width:100%; height:auto; border:1px solid var(--line); border-radius:6px; background:#fff}
+  .figure figcaption{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:.86rem; color:var(--sub); margin-top:8px;
+  }
+  .callout{
+    border:1px solid var(--line); border-radius:8px; padding:18px 22px; margin:20px 0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.95rem;
+  }
+  .callout.warn{border-color:#e0c9a0; background:#fbf5ea; color:var(--warn)}
+  .callout.good{border-color:#bcdccb; background:#f0f9f4; color:var(--good)}
+  .badge-row{display:flex; gap:10px; flex-wrap:wrap; margin:18px 0}
+  .badge{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:.78rem; padding:5px 12px; border-radius:999px; border:1px solid var(--line);
+    color:var(--sub);
+  }
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:24px 0}
+  .stat{
+    border:1px solid var(--line); border-radius:8px; padding:16px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  .stat .n{font-size:1.5rem; font-weight:700; color:var(--accent-ink)}
+  .stat .l{font-size:.78rem; color:var(--sub); text-transform:uppercase; letter-spacing:.05em; margin-top:2px}
+  footer{
+    border-top:1px solid var(--line); margin-top:64px; padding:32px 0 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:.9rem; color:var(--sub);
+  }
+  footer a{color:var(--accent-ink)}
+  a{color:var(--accent-ink)}
+  @media (max-width:600px){
+    body{font-size:16.5px}
+    h1{font-size:1.7rem}
+    .wrap{padding:0 18px}
+    header.hero{padding:44px 0 28px}
+    .stat-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">FlyRank ML Internship &middot; Capstone Research Paper</div>
+    <h1>Refresh Priority Scoring: A Decision-Support Model for Content Review</h1>
+    <p class="sub">Which content items should be prioritized for refresh review, based only on search-performance signals observable at the time of the decision?</p>
+    <div class="meta">
+      <span>Lane: Refresh / Content Opportunity Scoring</span>
+      <span>&middot;</span>
+      <span>Data: March&ndash;June 2026</span>
+      <span>&middot;</span>
+      <span><a href="https://github.com/Hanizakkk/flyrank_working-repo">Repository</a></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="abstract">
+  <h2>Abstract</h2>
+  <p class="lede">
+    This paper asks which content items are worth prioritizing for manual refresh review, using
+    only search-performance signals a team could observe at decision time. A transparent
+    rule-based baseline and a Random Forest model were built on eight decision-window features
+    aggregated from one month of the FlyRank internship warehouse. The label was defined as an
+    observed decline in the following month's search impressions, and both were evaluated on a
+    client-holdout split &mdash; so no client's pages could appear in both training and test. The
+    model reached a precision@50 of 0.86 versus 0.70 for the baseline rule, and held at 0.86 on a
+    fully sealed, untouched future month never used during development. The result is presented
+    as an observed, decision-support signal for ranking review priority, not a causal explanation
+    of why any individual page's performance moved.
+  </p>
+</section>
+
+<section id="intro">
+  <h2>1. Introduction</h2>
+  <p>
+    A content or SEO team with limited time cannot manually review every page every month. The
+    practical decision this work supports is narrow but useful: given a list of content items and
+    what is already known about their recent search performance, which ones should go to the top
+    of the review queue this month?
+  </p>
+  <p>
+    The lane is <strong>Refresh / Content Opportunity Scoring</strong>: score pages that are
+    growing, declining, recovering, or worth review, and output a ranked action engine with
+    reason codes a human can trust and act on.
+  </p>
+</section>
+
+<section id="data">
+  <h2>2. Data</h2>
+  <p>
+    Built on the <code>FlyRank/internship-warehouse</code> release (Hugging Face, gated), table
+    <code>fact_content_daily_performance</code>, at a grain of one row per
+    <code>report_date &times; client_hash_id &times; content_hash_id</code>.
+  </p>
+  <div class="badge-row">
+    <span class="badge">Decision window: March 2026</span>
+    <span class="badge">Outcome window: April 2026</span>
+    <span class="badge">Sealed test: May &rarr; June 2026</span>
+    <span class="badge">Live scoring: June 2026</span>
+  </div>
+  <p>
+    Rows without a reliable GSC signal (<code>gsc_data_available</code> is not TRUE) were
+    excluded. Only three GA4 enrichment columns (<code>ga4_sessions</code>, AI-referral session
+    counts, on-page scroll events) were kept alongside the core GSC columns &mdash; the feature set was deliberately kept
+    compact rather than using every available column. Only hashed client and content identifiers
+    are used anywhere in this pipeline; no domains, URLs, or client names ever leave the
+    warehouse query.
+  </p>
+</section>
+
+<section id="methodology">
+  <h2>3. Methodology</h2>
+
+  <h3>Label</h3>
+  <p>
+    <code>future_decline = 1</code> if a content item's summed impressions in the outcome month
+    are lower than its summed impressions in the decision month, else <code>0</code>. This is an
+    observed proxy for "would have benefited from review" &mdash; it says nothing about
+    <em>why</em> impressions moved.
+  </p>
+
+  <h3>Features</h3>
+  <p>Eight aggregates, computed from the decision month only, never mixed with outcome-month data:</p>
+  <table>
+    <tr><th>Feature</th><th>Knowable at decision time because&hellip;</th></tr>
+    <tr><td><code>impressions</code></td><td>summed GSC impressions, decision month only</td></tr>
+    <tr><td><code>clicks</code></td><td>summed GSC clicks, decision month only</td></tr>
+    <tr><td><code>avg_position</code></td><td>mean GSC average position, decision month only</td></tr>
+    <tr><td><code>ctr</code></td><td>decision-month clicks &divide; decision-month impressions</td></tr>
+    <tr><td><code>ga4_sessions</code></td><td>summed GA4 sessions, decision month only</td></tr>
+    <tr><td><code>sessions_ai</code></td><td>summed AI-referral sessions, decision month only</td></tr>
+    <tr><td><code>scroll_events</code></td><td>summed on-page scroll events, decision month only</td></tr>
+    <tr><td><code>days_active</code></td><td>count of decision-month rows with any GSC/GA4 data</td></tr>
+  </table>
+  <p>Identifiers (<code>client_hash_id</code>, <code>content_hash_id</code>) are used only to join and group rows &mdash; never passed to a model as a feature.</p>
+
+  <h3>Baseline</h3>
+  <p>
+    A transparent rule: flag an item if it already earns real visibility (impressions at or above
+    the population median) but wastes it &mdash; sitting off page one on average
+    (<code>avg_position &ge; 10</code>) or converting visibility into clicks worse than a typical
+    visible item (<code>ctr</code> below the median among visible items). Score is sized by raw
+    impressions, so high-traffic underperformers outrank low-traffic ones with the same flags.
+    Reason codes: <code>visible_weak_position</code>, <code>visible_low_ctr</code>,
+    <code>general_refresh_review</code>, <code>not_visible_enough</code>.
+  </p>
+
+  <h3>Model</h3>
+  <p>
+    Logistic Regression as an interpretable reference, and Random Forest
+    (300 trees, max depth 6, fixed seed) as the final model &mdash; chosen for handling the
+    non-linear interaction between position, CTR, and impressions that a linear model misses.
+  </p>
+
+  <h3>Validation design</h3>
+  <p>
+    <strong>Client-holdout split</strong> (grouped by <code>client_hash_id</code>, 80/20, seed
+    fixed): a client's pages never appear in both train and test. This choice is directly
+    justified by the leakage audit below, which measured the cost of skipping it.
+  </p>
+
+  <h3>Leakage audit</h3>
+  <p>
+    Every check below passed on the final 8-feature set: features are aggregated only from the
+    decision month; the label is built from a separate, later query and never included as a
+    feature; identifiers are excluded from the feature list; all reported numbers use the
+    client-holdout split.
+  </p>
+  <div class="callout warn">
+    <strong>Deliberate leak demonstration.</strong> Folding the label into its own feature set and
+    retraining pushed precision@50 from an honest 0.86 to a perfect <strong>1.000</strong> &mdash;
+    the model was simply reading its own answer back. This confirms the audit process actually
+    catches leakage when it's present, rather than the honest features merely happening to look clean.
+  </div>
+</section>
+
+<section id="results">
+  <h2>4. Results</h2>
+
+  <h3>Split matters &mdash; measured, not assumed</h3>
+  <p>Same March&rarr;April data, same Random Forest, two different splits:</p>
+  <table>
+    <tr><th>Split</th><th class="num">Precision@50</th><th class="num">Client overlap</th></tr>
+    <tr><td>Random row split</td><td class="num">0.96</td><td class="num">45 clients</td></tr>
+    <tr><td><strong>Client holdout split (used everywhere below)</strong></td><td class="num highlight">0.86</td><td class="num">0</td></tr>
+  </table>
+  <p>The random split let 45 clients appear in both train and test, inflating precision by roughly 10 points. Every other number in this paper uses the honest, client-holdout split.</p>
+
+  <h3>Baseline vs. model, same split</h3>
+  <table>
+    <tr><th>Model</th><th class="num">Precision@50</th></tr>
+    <tr><td>Baseline rule</td><td class="num">0.70</td></tr>
+    <tr><td>Logistic Regression</td><td class="num">0.84</td></tr>
+    <tr><td><strong>Random Forest (final)</strong></td><td class="num highlight">0.86</td></tr>
+  </table>
+  <p>Test-split base rate: 66.2% of items declined the following month. The model's lift over "always guess decline" is real but moderate, not dramatic &mdash; consistent with the honest framing this paper aims for.</p>
+
+  <div class="figure">
+    <img src="figures/feature_importance.svg" alt="Random Forest feature importance chart">
+    <figcaption>Figure 1. Random Forest feature importance, March&rarr;April decline model. <code>avg_position</code> and <code>ctr</code> dominate &mdash; the model rediscovered roughly the same signal the baseline rule was hand-built on, then combined it more precisely.</figcaption>
+  </div>
+
+  <h3>Sealed test: May 2026 &rarr; June 2026 (run once)</h3>
+  <div class="callout good">
+    <strong>Precision@50 = 0.86</strong> on a completely untouched future decision/outcome pair,
+    evaluated exactly once after all development finished. This nearly matches the dev-split
+    number and is the strongest evidence in this paper that the model generalizes forward in
+    time rather than having been overfit to March/April specifically.
+  </div>
+
+  <h3>Where the model is wrong</h3>
+  <p>
+    Confident-but-wrong predictions cluster around items with <code>avg_position</code> hovering
+    between 9 and 11 &mdash; exactly the page-one/page-two boundary where both the fixed rule
+    threshold and the model's own decision boundary are least stable. Items in this band should be
+    treated as lower-confidence flags, not auto-actioned.
+  </p>
+</section>
+
+<section id="limitations">
+  <h2>5. Limitations &amp; honest framing</h2>
+  <ul>
+    <li>This is an <strong>observed, decision-support</strong> signal &mdash; not a causal claim, and not a prediction of Google's ranking algorithm.</li>
+    <li>The label is an impressions-based proxy for decline; it does not know <em>why</em> a page's performance moved (content quality, a SERP feature change, seasonality, a competitor).</li>
+    <li>The 8-feature set intentionally omits content-characteristic data (word count, topic, freshness) not present in this warehouse table &mdash; the model sees search-behavior signals only.</li>
+    <li>Precision@50 = 0.86 is measured against a 59&ndash;66% base rate, so the honest lift over guessing is real but moderate.</li>
+    <li>61,029 items (June 2026) fall below a 20-impression noise floor &mdash; this method has nothing reliable to say about low-traffic content.</li>
+  </ul>
+</section>
+
+<section id="recommendations">
+  <h2>6. Ranked recommendations</h2>
+  <p>Applying the final model to June 2026 (decision-window only &mdash; forward-looking, no label yet) produced this action mix across 208,636 scored items:</p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="n">59,351</div><div class="l">Refresh priority</div></div>
+    <div class="stat"><div class="n">86,035</div><div class="l">Monitor</div></div>
+    <div class="stat"><div class="n">2,221</div><div class="l">Protect</div></div>
+    <div class="stat"><div class="n">61,029</div><div class="l">Manual review (below noise floor)</div></div>
+  </div>
+
+  <div class="figure">
+    <img src="figures/action_mix.svg" alt="Action category mix chart">
+    <figcaption>Figure 2. Action-category mix, June 2026 live scoring.</figcaption>
+  </div>
+
+  <h3>Intended use and limits</h3>
+  <p>
+    For a content/SEO lead deciding where to spend limited review time this month &mdash; not an
+    auto-publish pipeline. Action thresholds (0.66 / 0.40) are fixed cutoffs chosen for
+    readability, not tuned to any specific team's review capacity.
+  </p>
+
+  <h3>No-go list &mdash; never auto-act on</h3>
+  <ul>
+    <li>Anything below the 20-impression noise floor (61,029 items) &mdash; too sparse to trust.</li>
+    <li><code>refresh_priority</code> items with <code>avg_position</code> between 9 and 11 &mdash; the model's least stable region.</li>
+    <li>A single client's top-ranked items viewed in isolation, without checking whether that client's whole portfolio is skewed.</li>
+  </ul>
+
+  <h3>Monitoring / retrain trigger</h3>
+  <p>
+    Re-run monthly as each new decision/outcome pair closes out. If precision@50 on a fresh month
+    drops meaningfully below the 0.86 dev/sealed-test benchmark, or the action-category mix shifts
+    sharply without an obvious cause, treat that as a signal the scoring rule needs review.
+  </p>
+</section>
+
+<section id="reproducibility">
+  <h2>7. Reproducibility</h2>
+  <ul>
+    <li>Repository: <a href="https://github.com/Hanizakkk/flyrank_working-repo">github.com/Hanizakkk/flyrank_working-repo</a></li>
+    <li>Full executed pipeline: <code>work/pipeline/capstone_full_pipeline.ipynb</code></li>
+    <li>Assignment notebooks: <code>work/notebooks/w04_baseline_score.ipynb</code> through <code>w07_action_playbook.ipynb</code>, and <code>work/notebooks/capstone.ipynb</code></li>
+    <li>Result artifacts: <code>work/outputs/*.json</code>, <code>work/outputs/ranked_recommendations_sample.json</code></li>
+    <li>Charts: <code>work/figures/*.svg</code></li>
+    <li>Random seeds fixed throughout (<code>random_state=42</code>) for reproducible splits and model training.</li>
+  </ul>
+</section>
+
+<footer>
+  <div class="wrap" style="padding:0">
+    <p>Built on the FlyRank ML Internship dataset &mdash; <a href="https://flyrank.ai">flyrank.ai</a></p>
+    <p>&copy; 2026. Research paper produced as part of the FlyRank Machine Learning internship capstone.</p>
+  </div>
+</footer>
+
+</main>
+</body>
+</html>
