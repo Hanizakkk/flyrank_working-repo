@@ -1,1 +1,29 @@
-
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="480.0" y="34" text-anchor="middle" font-family="Arial" font-size="22" fill="#16232a">Random Forest feature importance (March -&gt; April decline)</text>
+<text x="208" y="95.2" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">days_active</text>
+<rect x="220" y="70.0" width="332.7" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="560.7" y="95.2" font-family="Arial" font-size="13" fill="#27343b">0.475</text>
+<text x="208" y="143.9" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">impressions</text>
+<rect x="220" y="118.8" width="193.9" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="421.9" y="143.9" font-family="Arial" font-size="13" fill="#27343b">0.277</text>
+<text x="208" y="192.7" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">ctr</text>
+<rect x="220" y="167.5" width="65.0" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="293.0" y="192.7" font-family="Arial" font-size="13" fill="#27343b">0.0929</text>
+<text x="208" y="241.4" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">clicks</text>
+<rect x="220" y="216.2" width="39.7" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="267.7" y="241.4" font-family="Arial" font-size="13" fill="#27343b">0.0566</text>
+<text x="208" y="290.2" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">avg_position</text>
+<rect x="220" y="265.0" width="27.8" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="255.8" y="290.2" font-family="Arial" font-size="13" fill="#27343b">0.0397</text>
+<text x="208" y="338.9" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">scroll_events</text>
+<rect x="220" y="313.8" width="21.0" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="249.0" y="338.9" font-family="Arial" font-size="13" fill="#27343b">0.03</text>
+<text x="208" y="387.7" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">ga4_sessions</text>
+<rect x="220" y="362.5" width="19.4" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="247.4" y="387.7" font-family="Arial" font-size="13" fill="#27343b">0.0278</text>
+<text x="208" y="436.4" text-anchor="end" font-family="Arial" font-size="13" fill="#27343b">sessions_ai</text>
+<rect x="220" y="411.2" width="0.5" height="38.8" fill="#6F4E7C" rx="4"/>
+<text x="228.5" y="436.4" font-family="Arial" font-size="13" fill="#27343b">0.000678</text>
+<text x="220" y="500" font-family="Arial" font-size="12" fill="#5a6a72">Higher bars = more weight in the final model&apos;s decline predictions.</text>
+</svg>
