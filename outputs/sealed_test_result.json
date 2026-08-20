@@ -1,7 +1,0 @@
-{
-  "base_rate": 0.7282517565732892,
-  "decision_month": "2026-05",
-  "n_rows": 184877,
-  "outcome_month": "2026-06",
-  "precision_at_50": 0.86
-}
