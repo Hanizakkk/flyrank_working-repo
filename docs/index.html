@@ -128,13 +128,13 @@
     This paper asks which content items are worth prioritizing for manual refresh review, using
     only search-performance signals a team could observe at decision time. A transparent
     rule-based baseline and a Random Forest model were built on eight decision-window features
-    aggregated from one month of the FlyRank internship warehouse, with the label defined as an
-    observed decline in the following month's search impressions. Evaluated on a client-holdout
-    split &mdash; so no client's pages could appear in both training and test &mdash; the model reached a
-    precision@50 of 0.86 versus 0.70 for the baseline rule, and held at 0.86 on a fully sealed,
-    untouched future month never used during development. The result is presented as an
-    observed, decision-support signal for ranking review priority, not a causal explanation of
-    why any individual page's performance moved.
+    aggregated from one month of the FlyRank internship warehouse. The label was defined as an
+    observed decline in the following month's search impressions, and both were evaluated on a
+    client-holdout split &mdash; so no client's pages could appear in both training and test. The
+    model reached a precision@50 of 0.86 versus 0.70 for the baseline rule, and held at 0.86 on a
+    fully sealed, untouched future month never used during development. The result is presented
+    as an observed, decision-support signal for ranking review priority, not a causal explanation
+    of why any individual page's performance moved.
   </p>
 </section>
 
