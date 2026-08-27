@@ -1,5 +1,8 @@
 # Capstone Evidence — Send the Link: Launch, Demo & Story
 
+## Live Demo
+
+**CaseFlow AI:** https://hanizakkk.github.io/caseflow-ai/
 ## 1. How to add the next case
 See `NEXT_CASE.md` for the full concrete steps. Summary: choose the completed work → write the three beats (Problem / What I Did / What Came Of It) → add one object to `src/data/cases.js` → update `NEXT_CASE` → test locally → push to `main` and the GitHub Actions workflow redeploys automatically. No manual rebuild step — CI handles `npm run build` and publishing.
 
